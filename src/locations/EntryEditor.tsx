@@ -7,8 +7,10 @@ import { FormControl, Checkbox } from "@contentful/f36-components";
 import { /* useCMA, */ useSDK } from '@contentful/react-apps-toolkit';
 
 // Converts a field into <FieldAPI> data type, which is the expected data type for many API methods
-const getFieldAPI = (fieldId, sdk) =>
-  sdk.entry.fields[fieldId].getForLocale(sdk.locales.default);
+const getFieldAPI = (fieldId, sdk) => {
+  // This return object has a key called `_value` that contains the value for this locale
+  return sdk.entry.fields[fieldId].getForLocale(sdk.locales.default);
+};
 
 // Creates a <FieldExtensionSDK> type that can be passed to components from the default-field-editors package
 const getFieldExtensionSdk = (fieldId, sdk) =>
@@ -92,8 +94,17 @@ const Entry = () => {
   };
 
   useEffect(() => {
-    // ???
-  }, [managedFieldValues, fields]);
+    // If the isPrimary value is different than what it was on the initial
+    // load, we need to rerender
+    const isPrimaryFieldId = 'isPrimary';
+    const isPrimaryFieldSdk = getFieldAPI(isPrimaryFieldId, sdk);
+    if (isPrimaryFieldSdk?._value !== managedFieldValues[isPrimaryFieldId]) {
+      setManagedFieldValues((prevState) => ({
+        ...prevState,
+        [isPrimaryFieldId]: isPrimaryFieldSdk?._value,
+      }));
+    }
+  }, [managedFieldValues, sdk]);
 
   const fieldComponents = fields.map((field) => {
     const control = sdk.editor.editorInterface.controls!.find(
@@ -103,20 +114,17 @@ const Entry = () => {
     const defaultValue = field.defaultValue?.hasOwnProperty(locale) ?
       field.defaultValue[sdk.locales.default] : null;
     const fieldsToToggle = ['image', 'icon', 'bodyText'];
+    const fieldSdk = getFieldExtensionSdk(field.id, sdk);
 
     if (field.id === 'isPrimary') {
+      const isPrimaryValue = managedFieldValues[field.id] || defaultValue;
       return (
         <div className="c-cf-field" key={field.id}>
           <CustomBoolean
-            value={
-              // TODO: How do we get the initial value? The default value isn't updated
-              // to the set value from the initial contentful response and I don't see it in the
-              // sdk object
-              managedFieldValues[field.id] || defaultValue
-            }
+            value={isPrimaryValue}
             field={field}
             handleChange={updateInput}
-            sdk={getFieldExtensionSdk(field.id, sdk)} />
+            sdk={fieldSdk} />
           </div>
       );
     }
@@ -129,7 +137,7 @@ const Entry = () => {
       <div className="c-cf-field" style={getInlineStyle(field.id)} key={field.id}>
         <DefaultField
           fieldId={field.id}
-          sdk={getFieldExtensionSdk(field.id, sdk)}
+          sdk={fieldSdk}
           widgetId={widgetId}
         />
       </div>

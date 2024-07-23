@@ -1,5 +1,26 @@
 This project was bootstrapped with [Create Contentful App](https://github.com/contentful/create-contentful-app).
 
+## Goal
+
+The goal of this POC was to figure out how to implement conditional fields in Contentful using a custom app.
+
+Setting up a React app for this requires significant overhead and adds unnecessary complexity. Each field needed individual rendering with Contentful’s Forma36 lib, and custom fields were required to individually track values for conditional logic. Manual handling of some input data was also needed.
+
+A universal implementation would be possible with more time, but existing apps in the Contentful Marketplace might be better. Properly showing and hiding fields conditionally (and not just via CSS) would be ideal as the validation logic of the model further complicates things.
+
+My recommendation to avoid a custom Contentful app and instead deal with the fields being visible or explore existing solutions instead.
+
+<table>
+  <tr>
+    <td><img src="./assets/step-1-contentful-app-config.png" alt="Step 1: Contentful App Configuration"></td>
+    <td><img src="./assets/step-2-contentful-app-config.png" alt="Step 2: Contentful App Configuration"></td>
+  </tr>
+  <tr>
+    <td><img src="./assets/step-3-contentful-app-config.png" alt="Step 3: Contentful App Configuration"></td>
+    <td><img src="./assets/contentful-conditional-toggle.gif" alt="Working solution of conditional fields in Contentful"></td>
+  </tr>
+</table>
+
 ## Available Scripts
 
 In the project directory, you can run:
@@ -28,11 +49,11 @@ Read [here](https://www.contentful.com/developers/docs/extensibility/app-framewo
 
 #### `npm run upload-ci`
 
-Similar to `npm run upload` it will upload your app to contentful and activate it. The only difference is   
+Similar to `npm run upload` it will upload your app to contentful and activate it. The only difference is
 that with this command all required arguments are read from the environment variables, for example when you add
 the upload command to your CI pipeline.
 
-For this command to work, the following environment variables must be set: 
+For this command to work, the following environment variables must be set:
 
 - `CONTENTFUL_ORG_ID` - The ID of your organization
 - `CONTENTFUL_APP_DEF_ID` - The ID of the app to which to add the bundle
